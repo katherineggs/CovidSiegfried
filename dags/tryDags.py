@@ -23,7 +23,6 @@ def processFunc(**kwargs):
 
 
 def processFile(**kwargs):
-    print("hi")
     # Confirmed
     filepath = f"{FSHook('fs_default').get_path()}/time_series_covid19_confirmed_global.csv"
     dfConfirmed = pd.read_csv(filepath)
