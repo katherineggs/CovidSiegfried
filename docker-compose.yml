@@ -49,3 +49,10 @@ services:
             MYSQL_DATABASE: test
             MYSQL_USER: test
             MYSQL_PASSWORD: test123
+
+    streamlit:
+        build: ./streamlit_app/
+        links:
+            - db
+        ports:
+          - "8501:8501"

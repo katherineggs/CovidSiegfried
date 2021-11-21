@@ -23,6 +23,7 @@ def processFunc(**kwargs):
 
 
 def processFile(**kwargs):
+    print("hi")
     # Confirmed
     filepath = f"{FSHook('fs_default').get_path()}/time_series_covid19_confirmed_global.csv"
     dfConfirmed = pd.read_csv(filepath)
@@ -94,7 +95,8 @@ def processRecovered(**kwargs):
         recovered.to_sql('CovidRecovered', schema='test',
                          con=connection, if_exists='append',
                          chunksize=2500, index=False)
-
+        result = connection.execute("SELECT * FROM CovidRecovered").fetchall()
+        print(result, file=sys.stderr)
 
 t1 = PythonOperator(
     task_id='inicio_dag',
@@ -150,3 +152,4 @@ processFileRec = PythonOperator(
 )
 
 sensorConf >> processFileConf >> sensorDeath >> processFileDeath >> sensorRecov >> processFileRec
+#a
