@@ -54,5 +54,7 @@ services:
         build: ./streamlit_app/
         links:
             - db
+        depends_on:
+            - db
         ports:
           - "8501:8501"
