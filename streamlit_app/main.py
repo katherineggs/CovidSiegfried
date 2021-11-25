@@ -21,7 +21,7 @@ connectPd = connection.connect(host="db", database='test', user="test", passwd="
 cursor = db.cursor()
 cursor.execute("USE test")
 cursor.execute("SHOW TABLES;")
-st.write(str(cursor.fetchall()))
+# st.write(str(cursor.fetchall()))
 
 st.markdown(
     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">',
