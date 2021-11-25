@@ -37,6 +37,9 @@ def processFile(**kwargs):
     conf['Month'] = conf['Date'].dt.month
     conf['Day'] = conf['Date'].dt.day
 
+    # Rename columns
+    conf = conf.rename(columns={'Long': 'Lon'})
+
     # Meter a la db
     source = MySqlHook('mydb').get_sqlalchemy_engine()
 
@@ -62,6 +65,9 @@ def processDeaths(**kwargs):
     deaths['Month'] = deaths['Date'].dt.month
     deaths['Day'] = deaths['Date'].dt.day
 
+    # Rename columns
+    deaths = deaths.rename(columns={'Long': 'Lon'})
+
     # Meter a la db
     source = MySqlHook('mydb').get_sqlalchemy_engine()
 
@@ -86,6 +92,9 @@ def processRecovered(**kwargs):
     recovered['Year'] = recovered['Date'].dt.year
     recovered['Month'] = recovered['Date'].dt.month
     recovered['Day'] = recovered['Date'].dt.day
+
+    # Rename columns
+    recovered = recovered.rename(columns={'Long': 'Lon'})
 
     # Meter a la db
     source = MySqlHook('mydb').get_sqlalchemy_engine()
