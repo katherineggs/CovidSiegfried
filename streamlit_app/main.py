@@ -172,6 +172,30 @@ elif active_tab == "Analisis":
                 mapData = mapData.rename(columns={"Lat": "lat", "Lon": "lon"})
                 # st.write(mapData)
                 st.map(mapData)
+    # YA NO ESTA DENTRO DEL GIT
+    st.subheader("Las fechas más fuertes")
+    with st.container():
+        confirmedFechas = pd.read_sql("""SELECT SUM(Confirmed) as tot, `Date`, `Country/Region`
+                                         FROM test.CovidConfirmed
+                                         GROUP BY `Date`, `Country/Region`
+                                         ORDER BY tot DESC LIMIT 10""", con=connectPd)
+        confirmedFechas = confirmedFechas.rename(columns={'tot': 'TOTAL', "Date": "FECHA", "Country/Region": "PAÍS"})
+        st.write("Casos confrimados")
+        st.table(confirmedFechas)
+        recoveredFechas = pd.read_sql("""SELECT SUM(Recovered) as tot, `Date`, `Country/Region`
+                                         FROM test.CovidRecovered
+                                         GROUP BY `Date`, `Country/Region`
+                                         ORDER BY tot DESC LIMIT 10""", con=connectPd)
+        recoveredFechas = recoveredFechas.rename(columns={'tot': 'TOTAL', "Date": "FECHA", "Country/Region": "PAÍS"})
+        st.write("Casos Recuperados")
+        st.table(recoveredFechas)
+        deathsssFechas = pd.read_sql("""SELECT SUM(Deaths) as tot, `Date`, `Country/Region`
+                                         FROM test.CovidDeaths
+                                         GROUP BY `Date`, `Country/Region`
+                                         ORDER BY tot DESC LIMIT 10""", con=connectPd)
+        deathsssFechas = deathsssFechas.rename(columns={'tot': 'TOTAL', "Date": "FECHA", "Country/Region": "PAÍS"})
+        st.write("Casos Fallecidos")
+        st.table(deathsssFechas)
 
 elif active_tab == "Regresion":
     st.write("If you'd like to contact me, then please don't.")
