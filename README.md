@@ -33,7 +33,6 @@ Para ejecutar la plataforma correr los siguientes comandos (dentro de la carpeta
 ```
 docker-compose build
 docker-compose up
-
 ```
 
 ## App:
