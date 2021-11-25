@@ -1,4 +1,5 @@
 import streamlit as st
+import mysql.connector as connection
 import pandas as pd
 import MySQLdb
 import time
@@ -13,6 +14,8 @@ db = MySQLdb.connect(host="db",
                      user="test",
                      passwd="test123",
                      db="test")
+
+connectPd = connection.connect(host="db", database='test', user="test", passwd="test123", use_pure=True)
 
 cursor = db.cursor()
 cursor.execute("USE test")
@@ -56,7 +59,7 @@ if active_tab == "Mapas":
     st.write("Mapaaaas")
 
 elif active_tab == "Analisis":
-    st.write("En esta página se muestras algunos datos interesantes")
+    st.subheader("En esta página se muestras algunos datos interesantes")
 
     cursor.execute("""SELECT SUM(Confirmed) FROM CovidConfirmed""")
     totalConf = str(cursor.fetchall())
@@ -109,37 +112,67 @@ elif active_tab == "Analisis":
     st.write("------------------")
 
     cases = ["Casos confirmados", "Muertes", "Recuperados"]
-    st.write("Seleccione el caso que desea ver")
+    st.subheader("Seleccione el caso que desea ver")
     caseOption = st.selectbox("País con mayor cantidad de", cases)
 
     if caseOption == "Casos confirmados":
         cursor.execute("""SELECT `Country/Region`, SUM(Confirmed) as Tot
                           FROM CovidConfirmed GROUP BY `Country/Region` ORDER BY tot DESC LIMIT 1""")
         confirmed = cursor.fetchall()
+        with st.container():
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                st.write("País ---- ", confirmed[0][0])
+                st.write("Cantidad de personas ---- ", confirmed[0][1])
+            with col2:
+                dfMap = pd.read_sql('SELECT * FROM CovidConfirmed', con=connectPd) #---------------
+                dfMap = dfMap[dfMap["Country/Region"] == confirmed[0][0]]
+                # st.write(dfMap)
 
-        st.write("País----", confirmed[0][0])
-        st.write("Cantidad de personas----", confirmed[0][1])
-
-        dfMap = pd.read_sql('SELECT * FROM table_name') #---------------
-        dfMap = dfMap[dfMap["Country/Region"] == confirmed[0][0]]
-
-        mapData = dfMap[["Lat", "Lon"]].copy()
-        mapData = mapData.rename(columns={"Lat": "lat", "Lon": "lon"})
-
-        st.map(mapData)
+                mapData = dfMap[["Lat", "Lon"]].copy()
+                mapData = mapData.rename(columns={"Lat": "lat", "Lon": "lon"})
+                # st.write(mapData)
+                st.map(mapData)
 
     elif caseOption == "Muertes":
         cursor.execute("""SELECT `Country/Region`, SUM(Deaths) as Tot
                           FROM CovidDeaths GROUP BY `Country/Region` ORDER BY tot DESC LIMIT 1""")
         deaths = cursor.fetchall()
+        with st.container():
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                st.write("País ---- ", deaths[0][0])
+                st.write("Cantidad de personas ---- ", deaths[0][1])
+            with col2:
+                dfMap = pd.read_sql('SELECT * FROM CovidDeaths', con=connectPd) #---------------
+                dfMap = dfMap[dfMap["Country/Region"] == deaths[0][0]]
+                # st.write(dfMap)
+
+                mapData = dfMap[["Lat", "Lon"]].copy()
+                mapData = mapData.rename(columns={"Lat": "lat", "Lon": "lon"})
+                # st.write(mapData)
+                st.map(mapData)
+
     else:
         cursor.execute("""SELECT `Country/Region`, SUM(Recovered) as Tot
                           FROM CovidRecovered GROUP BY `Country/Region` ORDER BY tot DESC LIMIT 1""")
         recovered = cursor.fetchall()
 
+        with st.container():
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                st.write("País ---- ", recovered[0][0])
+                st.write("Cantidad de personas ---- ", recovered[0][1])
+            with col2:
+                dfMap = pd.read_sql('SELECT * FROM CovidRecovered', con=connectPd) #---------------
+                dfMap = dfMap[dfMap["Country/Region"] == recovered[0][0]]
+                # st.write(dfMap)
 
+                mapData = dfMap[["Lat", "Lon"]].copy()
+                mapData = mapData.rename(columns={"Lat": "lat", "Lon": "lon"})
+                # st.write(mapData)
+                st.map(mapData)
 
-# SELECT SUM(views) FROM (SELECT threadid, views FROM table_name GROUP BY threadid, views)
 elif active_tab == "Regresion":
     st.write("If you'd like to contact me, then please don't.")
 else:
