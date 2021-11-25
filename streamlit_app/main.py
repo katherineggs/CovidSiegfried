@@ -6,8 +6,9 @@ import time
 import re
 
 time.sleep(3)
-st.set_page_config(layout="wide")
-st.title("Hola!")
+st.set_page_config(layout="wide", page_title="Covid Siegfried")
+st.title("Bienvenido!")
+st.write("Esto es un analisis a partir de datos recuperados de la pandemia de COVID19")
 
 # Connect
 db = MySQLdb.connect(host="db",
@@ -56,10 +57,89 @@ st.markdown(tabs_html, unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
 if active_tab == "Mapas":
-    st.write("Mapaaaas")
+    st.subheader("En esta página se muestran los mapas por país y fecha")
+
+    dfMapConf = pd.read_sql('SELECT * FROM CovidConfirmed', con=connectPd)
+    conf = cursor.fetchall()
+
+    lPaises = pd.read_sql('SELECT `Country/Region` FROM CovidConfirmed GROUP BY `Country/Region`', con=connectPd)
+    lFecha = pd.read_sql('SELECT `Date` FROM CovidConfirmed GROUP BY `Date`', con=connectPd)
+
+    # Seleccionar país
+    pais = st.selectbox("Seleccione un país:", lPaises["Country/Region"].tolist())
+    pais = str(pais)
+
+    # Seleccionar Fecha
+    fecha = st.selectbox('Seleccione una fecha:', lFecha["Date"].tolist())
+    fecha = str(fecha).strip("00:00:00")
+
+    st.subheader("Casos Confirmados de COVID19")
+
+    confirmadosLL = pd.read_sql("""SELECT * FROM CovidConfirmed """, con=connectPd)
+
+    cant = pd.read_sql("""SELECT Confirmed, `Date`, `Country/Region` FROM CovidConfirmed""", con=connectPd)
+    cant = cant[cant["Country/Region"] == pais]
+    cant = cant[cant["Date"] == fecha]
+    st.write("En ", pais, "en la fecha", fecha)
+    st.write("Hubo un total de casos de: ", cant["Confirmed"])
+
+    confirmadosLL = confirmadosLL[confirmadosLL["Country/Region"] == pais]
+    confirmadosLL = confirmadosLL[confirmadosLL["Date"] == fecha]
+
+    mapData = confirmadosLL[["Lat", "Lon"]].copy()
+    mapData = mapData.rename(columns={"Lat": "lat", "Lon": "lon"})
+    st.map(mapData, zoom=None)
+    st.write("----------------")
+
+    # -----------------------------------------------------
+    st.subheader("Casos Fallecidos de COVID19")
+
+    cant = pd.read_sql("""SELECT Deaths, `Date`, `Country/Region` FROM CovidDeaths""", con=connectPd)
+    cant = cant[cant["Country/Region"] == pais]
+    cant = cant[cant["Date"] == fecha]
+    st.write("En ", pais, "en la fecha", fecha)
+    st.write("Hubo un total de casos de: ", cant["Deaths"])
+
+    dfMapConf = pd.read_sql('SELECT * FROM CovidDeaths', con=connectPd)
+
+    lPaises = pd.read_sql('SELECT `Country/Region` FROM CovidDeaths GROUP BY `Country/Region`', con=connectPd)
+    lFecha = pd.read_sql('SELECT `Date` FROM CovidDeaths GROUP BY `Date`', con=connectPd)
+
+    confirmadosLLF = pd.read_sql("""SELECT * FROM CovidDeaths """, con=connectPd)
+
+    confirmadosLLF = confirmadosLLF[confirmadosLLF["Country/Region"] == pais]
+    confirmadosLLF = confirmadosLLF[confirmadosLLF["Date"] == fecha]
+
+    mapData = confirmadosLLF[["Lat", "Lon"]].copy()
+    mapData = mapData.rename(columns={"Lat": "lat", "Lon": "lon"})
+    st.map(mapData, zoom=None)
+    st.write("----------------")
+
+    # -----------------------------------------------------
+    st.subheader("Casos Recuperados de COVID19")
+    cant = pd.read_sql("""SELECT Recovered, `Date`, `Country/Region` FROM CovidRecovered""", con=connectPd)
+    cant = cant[cant["Country/Region"] == pais]
+    cant = cant[cant["Date"] == fecha]
+    st.write("En ", pais, "en la fecha", fecha)
+    st.write("Hubo un total de casos de: ", cant["Recovered"])
+
+
+    dfMapConf = pd.read_sql('SELECT * FROM CovidRecovered', con=connectPd)
+
+    lPaises = pd.read_sql('SELECT `Country/Region` FROM CovidRecovered GROUP BY `Country/Region`', con=connectPd)
+    lFecha = pd.read_sql('SELECT `Date` FROM CovidRecovered GROUP BY `Date`', con=connectPd)
+
+    confirmadosLLR = pd.read_sql("""SELECT * FROM CovidRecovered """, con=connectPd)
+
+    confirmadosLLR = confirmadosLLR[confirmadosLLR["Country/Region"] == pais]
+    confirmadosLLR = confirmadosLLR[confirmadosLLR["Date"] == fecha]
+
+    mapData = confirmadosLLR[["Lat", "Lon"]].copy()
+    mapData = mapData.rename(columns={"Lat": "lat", "Lon": "lon"})
+    st.map(mapData, zoom=None)
 
 elif active_tab == "Analisis":
-    st.subheader("En esta página se muestras algunos datos interesantes")
+    st.subheader("En esta página se muestran algunos datos interesantes")
 
     cursor.execute("""SELECT SUM(Confirmed) FROM CovidConfirmed""")
     totalConf = str(cursor.fetchall())
@@ -151,7 +231,7 @@ elif active_tab == "Analisis":
                 mapData = dfMap[["Lat", "Lon"]].copy()
                 mapData = mapData.rename(columns={"Lat": "lat", "Lon": "lon"})
                 # st.write(mapData)
-                st.map(mapData)
+                st.map(mapData, zoom=None)
 
     else:
         cursor.execute("""SELECT `Country/Region`, SUM(Recovered) as Tot
@@ -172,7 +252,7 @@ elif active_tab == "Analisis":
                 mapData = mapData.rename(columns={"Lat": "lat", "Lon": "lon"})
                 # st.write(mapData)
                 st.map(mapData)
-    # YA NO ESTA DENTRO DEL GIT
+
     st.subheader("Las fechas más fuertes")
     with st.container():
         confirmedFechas = pd.read_sql("""SELECT SUM(Confirmed) as tot, `Date`, `Country/Region`
