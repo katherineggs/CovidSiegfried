@@ -28,7 +28,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 query_params = st.experimental_get_query_params()
-tabs = ["Mapas", "Analisis", "Regresion"]
+tabs = ["Mapas", "Analisis"]
 
 if "tab" in query_params:
     active_tab = query_params["tab"][0]
@@ -276,9 +276,6 @@ elif active_tab == "Analisis":
         deathsssFechas = deathsssFechas.rename(columns={'tot': 'TOTAL', "Date": "FECHA", "Country/Region": "PAÍS"})
         st.write("Casos Fallecidos")
         st.table(deathsssFechas)
-
-elif active_tab == "Regresion":
-    st.write("If you'd like to contact me, then please don't.")
 else:
     st.error("Something has gone terribly wrong.")
 
